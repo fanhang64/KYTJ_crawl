@@ -1,5 +1,6 @@
 import functools
 import time
+import hashlib
 
 import requests
 from requests import ConnectionError
@@ -42,3 +43,15 @@ def get_text(url, **other_herders):
     except ConnectionError:
         print("抓取失败", url)
         raise
+
+
+def get_md5(obj:dict):
+    """
+        用于内容去重
+        obj: 为一条学校信息记录
+    """
+
+    input_text = hashlib.md5()
+    xx = "%s-%s-%s" % (obj['university_name'],obj['major'], obj['url'])
+    input_text.update(xx.encode("utf-8"))
+    return input_text.hexdigest()

@@ -2,8 +2,9 @@ from urllib.parse import urljoin
 
 from lxml import etree
 
-from .utils import get_text, check_list
+from .utils import get_text, check_list, get_md5
 from .settings import TJ_YEAR
+from .db import university_db
 
 
 class CrawlerMetaClass(type):
@@ -22,7 +23,7 @@ class Crawler(metaclass=CrawlerMetaClass):
     def get_items(self, callback):
         items = []
         for item in eval("self.{}()".format(callback)):
-            print('成功获取学校信息', item)
+            print('成功获取学校信息:', item)
             items.append(item)
         return items
 
@@ -53,9 +54,11 @@ class Crawler(metaclass=CrawlerMetaClass):
                         major=check_list(x.xpath("./span[2]/text()")),
                         neirong=check_list(x.xpath("./span[3]/a/@title")),
                         published_date=published_date,
-                        url=url
+                        url=url,
                     )
 
+                    uid = get_md5(item)
+                    item['uid'] = uid
                     yield item 
 
     def crawl_muchong(self):
@@ -70,3 +73,4 @@ class Crawler(metaclass=CrawlerMetaClass):
             items = self.get_items(callback)
 
             # save2db
+            university_db.save2db(items)
