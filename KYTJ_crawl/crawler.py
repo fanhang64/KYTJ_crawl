@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 from lxml import etree
 
 from .utils import get_text, check_list
+from .settings import TJ_YEAR
 
 
 class CrawlerMetaClass(type):
@@ -40,7 +41,7 @@ class Crawler(metaclass=CrawlerMetaClass):
                 for x in div_list:
                     published_date=check_list(x.xpath("./span[4]/text()"))
                     year = published_date.split("-")[0]
-                    if year and int(year) < 2021:
+                    if year and int(year) < TJ_YEAR:
                         break   # 网站按时间排序逆序排序
 
                     url = check_list(x.xpath("./span[3]/a/@href"))
