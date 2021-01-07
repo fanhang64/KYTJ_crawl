@@ -28,7 +28,6 @@ class Crawler(metaclass=CrawlerMetaClass):
         return items
 
     def crawl_chinakaoyan(self):
-
         base_url = "http://www.chinakaoyan.com/"
         url = "{}tiaoji/schoollist/pagenum/{}.shtml"
 
@@ -43,7 +42,7 @@ class Crawler(metaclass=CrawlerMetaClass):
                     published_date=check_list(x.xpath("./span[4]/text()"))
                     year = published_date.split("-")[0]
                     if year and int(year) < TJ_YEAR:
-                        break   # 网站按时间排序逆序排序
+                        break   # TODO 网站按时间排序逆序排序
 
                     url = check_list(x.xpath("./span[3]/a/@href"))
                     if url:
@@ -62,8 +61,36 @@ class Crawler(metaclass=CrawlerMetaClass):
                     yield item 
 
     def crawl_muchong(self):
-        return []
+        base_url = "http://muchong.com/"
+        url = "/bbs/kaoyan.php?action=adjust&type=1&page={}"
 
+        for i in range(1, 2):
+            total_url = urljoin(base_url, url.format(i))
+
+            res_text = get_text(total_url)
+            if res_text:
+                html = etree.HTML(res_text)
+                tr_list = html.xpath("//div[@class='wrapper'][1]/table/tbody[@class='forum_body_manage']/tr")
+                for tr in tr_list:
+                    published_date=check_list(tr.xpath("./td[5]/text()"))
+                    year = published_date.split("-")[0]
+                    # if year and int(year) < TJ_YEAR:
+                    #     break # TODO
+                    neirong = check_list(tr.xpath("./td[1]/a/text()"))
+                    num = check_list(tr.xpath("./td[4]/text()"))
+                    if num and int(num):
+                        neirong = neirong + " 招生人数：{}".format(num)
+
+                    item = dict(
+                        university_name=check_list(tr.xpath("./td[2]/text()")),
+                        major=check_list(tr.xpath("./td[3]/text()")),
+                        neirong=neirong,
+                        url=check_list(tr.xpath("./td[1]/a/@href")),
+                        published_date=published_date.split(" ")[0]
+                    )
+                    uid = get_md5(item)
+                    item['uid'] = uid
+                    yield item
         
     def run(self):
         print('获取器开始执行')

@@ -1,5 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
+
 from KYTJ_crawl.settings import db_url
 
 
@@ -23,13 +25,19 @@ class Db:
         self.sess.commit()
 
     def save2db(self, items):
+        if not items:
+            return
         sql = """insert into university(`university_name`, `uid`, `major`,
         `neirong`, `published_date`, `url`) values('{university_name}','{uid}'
         ,'{major}','{neirong}','{published_date}', '{url}')"""
         for x in items:
             s = sql.format(**x)
-            self.conn.execute(s)
-        self.sess.commit()
+            try:
+                self.conn.execute(s)
+                self.sess.commit()
+            except IntegrityError as e:
+                self.sess.rollback()
+                print(e)
 
     def get_universities(self):
         sql = "select * from university"

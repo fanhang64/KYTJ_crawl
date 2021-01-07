@@ -13,7 +13,8 @@ base_headers = {
 
 
 def check_list(obj):
-    return obj[0] if isinstance(obj, list) else ""
+    return obj[0] if obj and isinstance(obj, list) else ""
+
 
 
 def retry(times):
@@ -42,7 +43,6 @@ def get_text(url, **other_herders):
             return res.text
     except ConnectionError:
         print("抓取失败", url)
-        raise
 
 
 def get_md5(obj:dict):
@@ -52,6 +52,6 @@ def get_md5(obj:dict):
     """
 
     input_text = hashlib.md5()
-    xx = "%s-%s-%s" % (obj['university_name'],obj['major'], obj['url'])
+    xx = "%s-%s-%s" % (obj['university_name'],obj['major'], obj['neirong'])
     input_text.update(xx.encode("utf-8"))
     return input_text.hexdigest()
