@@ -16,7 +16,6 @@ def check_list(obj):
     return obj[0] if obj and isinstance(obj, list) else ""
 
 
-
 def retry(times):
     def decorator(func):
         @functools.wraps(func)
