@@ -7,7 +7,8 @@ from KYTJ_crawl.settings import db_url
 
 class Db:
     def __init__(self):
-        engine = create_engine(db_url)
+        engine = create_engine(db_url, 
+            connect_args={'check_same_thread': False})
         self.conn = engine.connect()
         self.sess = Session(bind=self.conn)
 
